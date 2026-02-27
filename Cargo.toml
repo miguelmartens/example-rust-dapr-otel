@@ -1,0 +1,22 @@
+[package]
+name = "example-rust-dapr-otel"
+version = "0.1.0"
+edition = "2021"
+description = "Minimal Rust example with Dapr (Azure PostgreSQL state store) and OpenTelemetry. Ready for AKS deployment."
+license = "MIT"
+
+[dependencies]
+axum = { version = "0.7", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+dapr = "0.17"
+dotenvy = "0.15"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+async-trait = "0.1"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["trace"] }
+opentelemetry = "0.27"
+opentelemetry_sdk = { version = "0.27", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.27", features = ["http-proto", "reqwest-client"] }
+tracing-opentelemetry = "0.27"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
