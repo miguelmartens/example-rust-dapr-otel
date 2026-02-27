@@ -1,8 +1,6 @@
 # Build stage
 FROM rust:1.93.1-alpine3.23 AS builder
 
-RUN apk add --no-cache openssl-dev pkgconfig
-
 WORKDIR /app
 
 # Copy manifests
@@ -21,7 +19,7 @@ RUN touch src/main.rs && cargo build --release
 # Runtime stage
 FROM alpine:3.23
 
-RUN apk --no-cache add ca-certificates openssl
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 COPY --from=builder /app/target/release/example-rust-dapr-otel .
