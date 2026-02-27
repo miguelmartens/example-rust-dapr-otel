@@ -1,0 +1,43 @@
+# Example: Dapr Azure PostgreSQL state store component
+# Apply to your cluster after creating the Kubernetes secret with the connection string.
+#
+# Prerequisites:
+# 1. Azure Database for PostgreSQL (create via Azure Portal or CLI)
+# 2. Create K8s secret: kubectl create secret generic azurepostgres-secret \
+#    --from-literal=connectionString='host=YOUR_SERVER.postgres.database.azure.com user=YOUR_USER password=YOUR_PASSWORD port=5432 database=YOUR_DB sslmode=require'
+# 3. Apply this component (same namespace as the secret)
+#
+# For production, use Azure AD (useAzureAD: true) with Managed Identity.
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: default
+spec:
+  type: state.postgresql
+  version: v2
+  metadata:
+    # Option 1: PostgreSQL credentials (development)
+    - name: connectionString
+      secretKeyRef:
+        name: azurepostgres-secret
+        key: connectionString
+
+    # Option 2: Azure AD (recommended for AKS)
+    # - name: useAzureAD
+    #   value: "true"
+    # - name: connectionString
+    #   value: "host=YOUR_SERVER.postgres.database.azure.com user=myapplication port=5432 database=daprstate sslmode=require"
+    # - name: azureTenantId
+    #   secretKeyRef:
+    #     name: azure-ad-secret
+    #     key: tenantId
+    # - name: azureClientId
+    #   secretKeyRef:
+    #     name: azure-ad-secret
+    #     key: clientId
+    # - name: azureClientSecret
+    #   secretKeyRef:
+    #     name: azure-ad-secret
+    #     key: clientSecret

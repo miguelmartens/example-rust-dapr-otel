@@ -88,23 +88,23 @@ docker pull ghcr.io/miguelmartens/example-rust-dapr-otel:latest
 
 ## API
 
-| Method | Path | Description |
-| ------ | ---- | ----------- |
-| GET | `/livez` | Liveness probe (should process be restarted?) |
-| GET | `/readyz` | Readiness probe (ready to accept traffic?) |
-| GET | `/health` | Alias for `/readyz` (backwards compatibility) |
-| GET | `/api/v1/state/{key}` | Retrieve state value |
-| POST | `/api/v1/state/{key}` | Save state (body = value) |
-| DELETE | `/api/v1/state/{key}` | Delete state |
+| Method | Path                  | Description                                   |
+| ------ | --------------------- | --------------------------------------------- |
+| GET    | `/livez`              | Liveness probe (should process be restarted?) |
+| GET    | `/readyz`             | Readiness probe (ready to accept traffic?)    |
+| GET    | `/health`             | Alias for `/readyz` (backwards compatibility) |
+| GET    | `/api/v1/state/{key}` | Retrieve state value                          |
+| POST   | `/api/v1/state/{key}` | Save state (body = value)                     |
+| DELETE | `/api/v1/state/{key}` | Delete state                                  |
 
 ## Configuration
 
-| Environment | Default | Description |
-| ----------- | ------- | ----------- |
-| `APP_PORT` | `8080` | HTTP server port |
-| `STATESTORE_NAME` | `statestore` | Dapr state store component name |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | (none) | OTLP endpoint for traces/metrics (e.g. `http://localhost:4318`) |
-| `OTEL_SERVICE_NAME` | `example-rust-dapr-otel` | Service name for telemetry |
+| Environment                   | Default                  | Description                                                     |
+| ----------------------------- | ------------------------ | --------------------------------------------------------------- |
+| `APP_PORT`                    | `8080`                   | HTTP server port                                                |
+| `STATESTORE_NAME`             | `statestore`             | Dapr state store component name                                 |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | (none)                   | OTLP endpoint for traces/metrics (e.g. `http://localhost:4318`) |
+| `OTEL_SERVICE_NAME`           | `example-rust-dapr-otel` | Service name for telemetry                                      |
 
 **Local dev**: The app loads `.env` from the working directory if present. Copy `.env.example` to `.env` and customize. `.env` is gitignored.
 

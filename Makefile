@@ -1,4 +1,4 @@
-.PHONY: build run test lint fmt tidy deps dev clean
+.PHONY: build run test lint fmt prettier update deps dev clean
 
 BINARY := target/release/example-rust-dapr-otel
 
@@ -17,17 +17,18 @@ lint:
 
 fmt:
 	cargo fmt
-	prettier --write "*.{json,md,yaml,yml}" 2>/dev/null || true
 
-tidy:
+prettier:
+	prettier --write .
+
+update:
 	cargo update
 
 deps:
 	cargo tree
 	cargo outdated 2>/dev/null || true
 
-dev:
-	cargo run
+dev: clean build run
 
 clean:
 	cargo clean
