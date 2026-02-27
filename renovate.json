@@ -1,18 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "labels": ["dependencies"],
   "packageRules": [
     {
       "matchManagers": ["cargo"],
       "groupName": "Rust dependencies"
     },
     {
-      "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions"
-    },
-    {
+      "matchManagers": ["dockerfile"],
       "matchDatasources": ["docker"],
-      "groupName": "Docker"
+      "groupName": "docker base images"
     }
   ]
 }
