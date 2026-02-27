@@ -3,7 +3,7 @@
 use opentelemetry::global;
 use opentelemetry_otlp::{Protocol, WithExportConfig};
 use opentelemetry_sdk::{
-    propagation::TraceContextPropagator, resource::Resource, runtime::Tokio, trace::TracerProvider,
+    propagation::TraceContextPropagator, resource::Resource, trace::SdkTracerProvider,
 };
 use tracing::info;
 
@@ -32,21 +32,21 @@ pub fn init(endpoint: Option<&str>, service_name: &str) -> Box<dyn FnOnce() + Se
     let traces_endpoint = format!("{}/v1/traces", ensure_http(&endpoint));
     let metrics_endpoint = format!("{}/v1/metrics", ensure_http(&endpoint));
 
-    let resource = Resource::new([opentelemetry::KeyValue::new(
-        "service.name",
-        service_name.clone(),
-    )]);
+    let resource = Resource::builder()
+        .with_service_name(service_name.clone())
+        .build();
 
-    // Initialize tracer (global owns it; use shutdown_tracer_provider for cleanup)
-    let tracer_initialized = match init_tracer(&traces_endpoint, resource.clone()) {
+    // Initialize tracer (global owns it; clone for shutdown)
+    let tracer_provider = match init_tracer(&traces_endpoint, resource.clone()) {
         Ok(tp) => {
+            let provider = tp.clone();
             global::set_tracer_provider(tp);
             global::set_text_map_propagator(TraceContextPropagator::new());
-            true
+            Some(provider)
         }
         Err(e) => {
             tracing::warn!("failed to init tracer, using no-op: {}", e);
-            false
+            None
         }
     };
 
@@ -63,8 +63,8 @@ pub fn init(endpoint: Option<&str>, service_name: &str) -> Box<dyn FnOnce() + Se
     };
 
     Box::new(move || {
-        if tracer_initialized {
-            global::shutdown_tracer_provider();
+        if let Some(provider) = tracer_provider {
+            let _ = provider.shutdown();
         }
         // Meter provider has no global shutdown; SdkMeterProvider flushes on drop when global is replaced
         let _ = meter_initialized;
@@ -74,15 +74,15 @@ pub fn init(endpoint: Option<&str>, service_name: &str) -> Box<dyn FnOnce() + Se
 fn init_tracer(
     endpoint: &str,
     resource: Resource,
-) -> Result<TracerProvider, Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<SdkTracerProvider, Box<dyn std::error::Error + Send + Sync>> {
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_http()
         .with_endpoint(endpoint)
         .with_protocol(Protocol::HttpBinary)
         .build()?;
 
-    let provider = TracerProvider::builder()
-        .with_batch_exporter(exporter, Tokio)
+    let provider = SdkTracerProvider::builder()
+        .with_batch_exporter(exporter)
         .with_resource(resource)
         .build();
 
@@ -100,12 +100,9 @@ fn init_meter(
         .with_protocol(Protocol::HttpBinary)
         .build()?;
 
-    let reader = opentelemetry_sdk::metrics::PeriodicReader::builder(
-        exporter,
-        opentelemetry_sdk::runtime::Tokio,
-    )
-    .with_interval(std::time::Duration::from_secs(10))
-    .build();
+    let reader = opentelemetry_sdk::metrics::PeriodicReader::builder(exporter)
+        .with_interval(std::time::Duration::from_secs(10))
+        .build();
 
     let provider = opentelemetry_sdk::metrics::SdkMeterProvider::builder()
         .with_resource(resource)
