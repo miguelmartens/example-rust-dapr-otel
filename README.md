@@ -150,7 +150,7 @@ This project uses [Renovate](https://github.com/apps/renovate) for automated dep
   2. Merge the onboarding PR Renovate creates
   3. Check the Dependency Dashboard issue for available updates
 
-See [renovate.json](renovate.json) for configuration.
+See [docs/RENOVATE_SETUP.md](docs/RENOVATE_SETUP.md) for detailed configuration.
 
 ## Contributing
 
