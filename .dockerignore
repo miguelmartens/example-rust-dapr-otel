@@ -1,0 +1,11 @@
+.git
+.github
+target
+bin
+.env
+docs
+*.md
+!README.md
+.gitignore
+.dockerignore
+Dockerfile
